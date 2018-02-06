@@ -22,12 +22,26 @@
 		border:dashed 1px;
 		padding:5px
 	}
+
+	h5 {
+		margin-top: 15px;
+		margin-bottom: 15px;
+	}
+
+	.container {
+		margin: 0 auto;
+		max-width: 980px;
+		width: 100%;
+	}
 	</style>
 </head>
 <body>
-	Filtrar lista:<br/>
-	<input type="text" id="searchfilter" placeholder="Digite aqui um valor para filtrar..."/>
-	<ul id="ulitens" tabindex="0"></ul>
+	<div class="container">
+		<h1>Autocomplete</h1>
+		<h5>Filtrar lista:</h5>
+		<input type="text" id="searchfilter" placeholder="Digite aqui um valor para filtrar..."/>
+		<ul id="ulitens" tabindex="0"></ul>
+	</div>
 </body>
 </html>
 <script type="text/javascript" src="js/main.js"></script>
