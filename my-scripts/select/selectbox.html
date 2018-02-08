@@ -1,0 +1,370 @@
+<html lang="pt-br">
+    <head>
+    
+    </head><div></div>
+    <body>
+
+	<div class="container">
+	    <select id="selectIds" data-select-settings="selectImage: true; modelo: default">
+	    	<option value="01" data-select-image="germany.png" data-select-description=""> 001 </option>
+			<option value="02" data-select-image="italy.png"> 002 </option>
+			<option value="03" data-select-image="germany.png"> 003 </option>
+			<option value="04" data-select-image="italy.png"> 004 </option>
+			<option value="05" data-select-image="germany.png"> 005 </option>
+			<option value="06"> 006 </option>
+			<option value="07"> 007 </option>
+			<option value="08" data-select-image="italy.png"> 008 </option>
+	    </select>
+	</div>
+
+	<div style="width:100%; height: 150px; position: relative; background-color: #f3dfdf"></div>
+    <select id="selectIdsAll">
+		<option value="01x"> 001x </option>
+		<option value="02x"> 002x </option>
+		<option value="03x"> 003x </option>
+		<option value="04x"> 004x </option>
+		<option value="05x"> 005x </option>
+		<option value="06x"> 006x </option>
+    </select>
+    <div style="width:100%; height: 150px; position: relative; background-color: #f3dfdf"></div>
+
+    </body>
+</html>
+
+<style>
+* {
+	font-family: arial;
+	font-size: 12px;
+}
+
+.container {
+	width: 200px;
+	position: relative;
+	min-height: 1px;
+	background-color: #f1f1f1;
+}
+
+.select-container-hide {
+	display: none;
+}
+
+.select-combobox {
+	width: 100%;
+	position: relative;
+	z-index: 9;
+}
+
+.select-combobox__arrow {
+	display: block;
+	width: 30px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	text-align: center;
+}
+
+.select-combobox__arrow b {
+	width: 20px;
+	height: 30px;
+	display: block;
+	background-position-y: 50%;
+    background-repeat: no-repeat;
+}
+
+.select-combobox--closed .select-combobox__arrow b {
+	background-image: url(arrow.png);
+}
+
+.select-combobox--opened .select-combobox__arrow b {
+	background-image: url(arrow-down.png);
+}
+
+.select-combobox__header {
+	position: relative;	
+	border-radius: 0;
+	border: 1px solid #ccc;
+	padding: 5px 8px;
+}
+
+.select-combobox__label {
+	width: 100%;
+	display: inline-block;
+	line-height: 20px;
+}
+
+.select-combobox__ul {
+	list-style-type: none;
+	border: 0;
+	margin: -1px 0;
+	padding: 0;
+	border: 1px solid #ccc;
+	position: absolute;
+	width: 100%;
+	background-color: #ffffff;
+	max-height: 140px;
+	overflow-x: hidden;
+	-ms-overflow-x: hidden;
+    overflow-y: scroll;
+    -ms-overflow-y: scroll;
+}
+
+.select-combobox__ul li {
+	border-bottom: 1px solid #ccc;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	cursor: pointer;
+	line-height: 22px;
+}
+
+.select-combobox__ul li img {
+	width: 100%;
+	max-width: 20px;
+	max-height: 20px;
+	float: left;
+}
+
+.select-combobox__ul li:hover {
+	background-color: #cccccc;
+}
+
+.select-combobox__ul li.selected {
+	background-color: #cccccc;
+}
+
+</style>
+
+<script>
+
+document.getElementById("selectIds").addEventListener('change', function () {
+	console.log('change: ', this.value);
+	var e =  document.createElement('p');
+		e.innerHTML = 'this.value= ' +this.value;
+	document.body.appendChild( e );
+});
+
+
+document.getElementById("selectIdsAll").addEventListener('change', function () {
+	console.log('change all: ', this.value);
+});
+
+
+(function(){
+	'use stric';
+
+	var selectCustom = function (el) {
+
+		var element = el || null;
+
+		if ( el ) {
+			element = document.querySelector( element ) ? document.querySelector( element ) : null;
+		}
+
+		String.prototype.trim = function() {
+			return this.replace(/^\s+|\s+$/g, '');
+		};
+		
+		function insertAfter ( target, el) {
+			return target.parentNode.insertBefore( el, target.nextSibling);
+		}
+
+		function triggerEvent ( el, evt ) {
+			var event; // The custom event that will be created
+
+			if ( document.createEvent ) {
+				event = document.createEvent("HTMLEvents");
+				event.initEvent( evt, true, true);
+			} else {
+				event = document.createEventObject();
+				event.eventType = evt;
+			}
+
+			event.eventName = evt;
+
+			if ( document.createEvent ) {
+				el.dispatchEvent( event );
+			} else {
+				el.fireEvent( "on" + event.eventType, event );
+			}
+		}
+
+		function navigation ( event, elementList ) {
+			console.log(event, elementList)
+		}
+
+		var settings = {
+			selectImage: false,
+			modelo: 'default'
+		};
+
+		//http://jaketrent.com/post/addremove-classes-raw-javascript/
+		var helpers = {
+			setSettings: function (){
+				var ops = element.getAttribute( 'data-select-settings' );
+				if (ops) {
+					var list = ops.split(';');
+					if ( list ){
+						for (var i = 0; i < list.length; i++) {
+							var values = list[i].split(':'), key = values[0].trim(), 
+								val = ( values[1].trim().toLowerCase() === 'true' ) ? true : values[1].trim();
+							return settings[ key ] = val;
+						}
+					}
+				}
+			},
+
+			hasClass: function (el, className) {
+				if (el.classList)
+					return el.classList.contains(className);
+				else
+					return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'));
+			},
+
+			addClass: function (el, className) {
+				if (el.classList)
+					el.classList.add(className);
+				else if (!this.hasClass(el, className)) el.className += " " + className;
+			},
+
+			removeClass: function (el, className) {
+				if (el.classList)
+					el.classList.remove(className);
+				else if (this.hasClass(el, className)) {
+					var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+					el.className=el.className.replace(reg, ' ');
+				}
+			}
+		};
+
+		
+
+		console.log( 'settings', settings.selectImage )
+
+		function start () {
+			
+			element.setAttribute('class', 'select-container-hide');
+
+			var options = element.getElementsByTagName('option');
+
+			var ul = document.createElement( 'ul' );
+				ul.style.display = 'none';
+				ul.setAttribute('class', 'select-combobox__ul');
+
+			for ( var i = 0; i < options.length; i++ ) {
+				var li = document.createElement( 'li' );
+
+					if ( settings.selectImage == true || settings.selectImage == 'true'){
+						var image = options[i].getAttribute( 'data-select-image' );
+						li.innerHTML = ( image) ? '<img src="'+ image +'">'+ options[i].textContent : options[i].textContent;
+					}
+					else{
+						li.textContent = options[i].textContent;
+						console.log(false)
+						console.log( settings.selectImage  )
+					}					
+					li.setAttribute('data-select-index', i);
+
+
+					li.addEventListener('click', function (){
+						var count = this.getAttribute( 'data-select-index' ) ;
+						var parent = this.parentElement;
+							parent.style.display = 'none';
+						helpers.addClass( container, 'select-combobox--closed');
+						helpers.removeClass( container, 'select-combobox--opened');
+
+							label.textContent = this.textContent;
+
+							console.log( 'options', options)
+							console.log( 'element', element)
+
+						var clear_select = ul.querySelectorAll('li');
+						for (var j=0; j < clear_select.length; j++){ helpers.removeClass( clear_select[j], 'selected')}
+
+						helpers.addClass(this, 'selected');
+						console.log( this );
+						// console.log( this.parentElement );
+						// console.log( this.textContent );
+						console.log( this.getAttribute( 'data-select-index' ) );
+
+						for (var i = 0; i < options.length; i++){ options[i].removeAttribute( 'selected' ); }
+						options[ parseInt( count ) ].setAttribute('selected', '');
+
+						// element.change();
+						triggerEvent ( element, 'change' );
+					});
+				ul.appendChild( li );
+			}
+			
+			var container =  document.createElement( 'div' );
+				container.setAttribute('class', 'select-combobox select-combobox--closed');
+				container.setAttribute('tabindex', '0');
+
+			var header = document.createElement( 'div' );
+				header.setAttribute( 'class', 'select-combobox__header');
+
+			var label = document.createElement( 'span' );
+				label.setAttribute('class', 'select-combobox__label');
+				label.innerHTML =  options[0].textContent ;
+			header.appendChild( label );
+
+			var arrow = document.createElement( 'span' );
+				arrow.setAttribute( 'class', 'select-combobox__arrow');
+				arrow.innerHTML = '<b></b>';
+			header.appendChild( arrow );
+
+			header.addEventListener('click', function () {
+				console.log( 'a' );
+
+				ul.style.display = 'block';
+				
+				helpers.addClass( container, 'select-combobox--opened');
+				helpers.removeClass( container, 'select-combobox--closed');
+			});
+		
+
+			container.addEventListener('blur', function () {
+				console.log( 'b' );
+
+				ul.style.display = 'none';
+				helpers.addClass( container, 'select-combobox--closed');
+				helpers.removeClass( container, 'select-combobox--opened');
+			});
+
+			container.addEventListener('keyup', function (event) {
+				navigation (event, ul);
+			});
+
+			
+			container.appendChild( header );
+			container.appendChild( ul );
+
+			//document.body.appendChild( div );
+			// referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+
+			return insertAfter ( element, container);	
+		}
+
+		function init ( options ) {
+
+			console.log('init: ', element)
+
+			if ( element ) {
+				helpers.setSettings();
+				start();
+			} else {
+				return false;
+			}
+		}
+
+		return {
+			init: init
+		}
+	};
+
+	selectCustom('#selectIds').init();
+	selectCustom('#selectIdsAll').init();
+	// selectCustom.init('#selectIdsAll');
+})();
+
+
+
+</script>
